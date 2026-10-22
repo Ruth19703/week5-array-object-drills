@@ -1,0 +1,10 @@
+
+{
+  "name": "week5-array-object-drills",
+  "version": "1.0.0",
+  "description": "Week 5 Advanced Frontend - Array and Object Manipulation Drills",
+  "type": "module",
+  "scripts": {
+    "start": "node drills.js"
+  }
+}
