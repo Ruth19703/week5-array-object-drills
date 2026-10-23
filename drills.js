@@ -108,3 +108,87 @@ console.log("14. Orders per status:", ordersPerStatus);
 // Check that the original data has not changed
 console.log("ORIGINAL:", JSON.stringify(orders) === ORIGINAL);
 
+
+
+ // 15. Revenue per district from delivered orders
+const revenueByDistrict = orders
+  .filter(({ status }) => status === "delivered")
+  .reduce((revenue, order) => {
+    const { district } = order.customer;
+
+    revenue[district] =
+      (revenue[district] || 0) + orderTotal(order);
+
+    return revenue;
+  }, {});
+
+console.log("15. Revenue by district:", revenueByDistrict);
+
+// 16. Group orders by date and calculate count and revenue
+const ordersByDate = Object.groupBy(
+  orders,
+  ({ date }) => date
+);
+
+const dailySummary = Object.entries(ordersByDate).map(
+  ([date, dateOrders]) => ({
+    date,
+    count: dateOrders.length,
+    revenue: dateOrders
+      .filter(({ status }) => status === "delivered")
+      .reduce((total, order) => total + orderTotal(order), 0)
+  })
+);
+
+console.log("16. Daily summary:", dailySummary);
+
+// 17. Top 3 best-selling items by quantity
+const itemQuantities = orders
+  .flatMap(({ items }) => items)
+  .reduce((totals, { name, qty }) => {
+    totals[name] = (totals[name] || 0) + qty;
+    return totals;
+  }, {});
+
+const topThreeItems = Object.entries(itemQuantities)
+  .map(([name, qty]) => ({ name, qty }))
+  .toSorted((a, b) => b.qty - a.qty)
+  .slice(0, 3);
+
+console.log("17. Top 3 best-selling items:", topThreeItems);
+
+// 18. Each customer's number of orders and total spent
+const customerSummary = Object.entries(
+  orders.reduce((customers, order) => {
+    const { name } = order.customer;
+
+    if (!customers[name]) {
+      customers[name] = { name, orders: 0, spent: 0 };
+    }
+
+    customers[name].orders += 1;
+    customers[name].spent += orderTotal(order);
+
+    return customers;
+  }, {})
+)
+  .map(([name, summary]) => summary)
+  .toSorted((a, b) => b.spent - a.spent);
+
+console.log("18. Customer summary:", customerSummary);
+
+// 19. Menu price list using Object.fromEntries
+const menuPrices = Object.fromEntries(
+  orders
+    .flatMap(({ items }) => items)
+    .map(({ name, price }) => [name, price])
+    .filter(
+      ([name], index, items) =>
+        items.findIndex(([itemName]) => itemName === name) === index
+    )
+);
+
+console.log("19. Menu prices:", menuPrices);
+
+// Check that the original data has not changed
+console.log("ORIGINAL:", JSON.stringify(orders) === ORIGINAL);
