@@ -192,3 +192,108 @@ console.log("19. Menu prices:", menuPrices);
 
 // Check that the original data has not changed
 console.log("ORIGINAL:", JSON.stringify(orders) === ORIGINAL);
+
+
+
+ // 20. Change a pending order's status to delivered
+function markDelivered(orders, id) {
+  return orders.map((order) =>
+    order.id === id && order.status === "pending"
+      ? { ...order, status: "delivered" }
+      : order
+  );
+}
+
+// 21. Rate an order only if it has been delivered
+function rateOrder(orders, id, rating) {
+  return orders.map((order) =>
+    order.id === id && order.status === "delivered"
+      ? { ...order, rating }
+      : order
+  );
+}
+
+// 22. Change an order's customer district
+function changeDistrict(orders, id, district) {
+  return orders.map((order) =>
+    order.id === id
+      ? {
+          ...order,
+          customer: {
+            ...order.customer,
+            district
+          }
+        }
+      : order
+  );
+}
+
+// 23. Add an item to an order
+function addItem(orders, id, item) {
+  return orders.map((order) =>
+    order.id === id
+      ? {
+          ...order,
+          items: [...order.items, item]
+        }
+      : order
+  );
+}
+
+// 24. Remove cancelled orders
+function removeCancelled(orders) {
+  return orders.filter(({ status }) => status !== "cancelled");
+}
+
+// 25. Apply a percentage discount to every item price
+function applyDiscount(orders, percent) {
+  return orders.map((order) => ({
+    ...order,
+    items: order.items.map((item) => ({
+      ...item,
+      price: Math.round(item.price * (1 - percent / 100))
+    }))
+  }));
+}
+
+// TESTS FOR STATION 4
+
+const deliveredOrders = markDelivered(orders, 105);
+console.log(
+  "20. Order 105 status:",
+  deliveredOrders.find(({ id }) => id === 105).status
+);
+
+const ratedOrders = rateOrder(orders, 101, 5);
+console.log(
+  "21. Order 101 rating:",
+  ratedOrders.find(({ id }) => id === 101).rating
+);
+
+const changedDistrictOrders = changeDistrict(orders, 101, "Kicukiro");
+console.log(
+  "22. New district:",
+  changedDistrictOrders.find(({ id }) => id === 101).customer.district
+);
+
+const ordersWithNewItem = addItem(orders, 101, {
+  name: "Water",
+  price: 500,
+  qty: 1
+});
+console.log(
+  "23. New items:",
+  ordersWithNewItem.find(({ id }) => id === 101).items
+);
+
+const ordersWithoutCancelled = removeCancelled(orders);
+console.log("24. Orders after removing cancelled:", ordersWithoutCancelled.length);
+
+const discountedOrders = applyDiscount(orders, 10);
+console.log(
+  "25. First item's discounted price:",
+  discountedOrders[0].items[0].price
+);
+
+// Prove the original orders have not changed
+console.log("Station 4 unchanged:", JSON.stringify(orders) === ORIGINAL);
